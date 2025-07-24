@@ -118,6 +118,13 @@ namespace WebSocketMediaServer
             var smtcManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
+                if (connectedClients.Count == 0)
+                {
+                    Console.WriteLine("No clients connected. Skipping broadcast.");
+                    await Task.Delay(1000);
+                    continue;
+                }
+
                 var session = smtcManager.GetCurrentSession();
                 string json;
                 if (session != null)
