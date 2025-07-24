@@ -30,7 +30,7 @@ A_TrayMenu.Add("Show / Hide Console Window", ToggleConsole)
 A_TrayMenu.Add("Exit Server", CloseItem)
 A_TrayMenu.Default := "Show / Hide Console Window"
 Persistent
-TraySetIcon("assets\Tray.ico")
+; TraySetIcon("assets\Tray.ico")
 
 DetectHiddenWindows(true)
 Run("bin\NowPlayingMediaServer.exe", "", "Hide", &PID)
