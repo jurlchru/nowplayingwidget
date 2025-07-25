@@ -18,6 +18,8 @@ namespace WebSocketMediaServer
 
     public class MediaWebSocketService
     {
+        private const string wsServerUri = "http://localhost:3001/ws/";
+        private const int broadCastInterval = 2000;
         private readonly HttpListener webSocketListener = new();
         private readonly CancellationTokenSource cancellationTokenSource = new();
         private readonly List<WebSocket> connectedClients = [];
@@ -121,7 +123,9 @@ namespace WebSocketMediaServer
                 if (connectedClients.Count == 0)
                 {
                     Console.WriteLine("No clients connected. Skipping broadcast.");
-                    await Task.Delay(1000);
+
+                    await Task.Delay(broadCastInterval);
+                    
                     continue;
                 }
 
@@ -211,8 +215,9 @@ namespace WebSocketMediaServer
                     }
                 }
 
-                Console.WriteLine($"Data packet sent at {DateTime.Now}");
-                await Task.Delay(1000);
+                Console.WriteLine($"Data packets sent at {DateTime.Now}");
+
+                await Task.Delay(broadCastInterval);
             }
 
             Console.WriteLine("Ending broadcast...");
