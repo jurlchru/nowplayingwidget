@@ -60,6 +60,11 @@
             const mediaInfo = JSON.parse(data);
             const mediaInfoStr = `${mediaInfo.Title}|${mediaInfo.AlbumTitle}|${mediaInfo.AlbumArtist}|${mediaInfo.PlaybackStatus}`;
 
+            // sometimes empty data is sent, just wait for the next proper info
+            if (mediaInfo.Title === '') {
+              return;
+            }
+
             if (mediaInfoStr !== lastInfoStr) {
               renderPlayer(mediaInfo);
             }
