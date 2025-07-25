@@ -210,6 +210,7 @@
         return 0.299 * r + 0.587 * g + 0.114 * b;
       }
 
+      /** @param {[number, number, number]} rgbColor */
       function rgbVibrance(rgbColor) {
         const [r, g, b] = rgbColor.map((c) => c / 255);
 
