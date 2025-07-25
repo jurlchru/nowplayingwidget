@@ -23,7 +23,8 @@ namespace WebSocketMediaServer
         private readonly HttpListener webSocketListener = new();
         private readonly CancellationTokenSource cancellationTokenSource = new();
         private readonly List<WebSocket> connectedClients = [];
-        private const string wsServerUri = "http://localhost:3001/ws/";
+        private string lastPlaybackInfoStr = "";
+        private string lastThumbNailBase64 = "";
 
         public static void Run(string[] args)
         {
@@ -140,30 +141,45 @@ namespace WebSocketMediaServer
                         var mediaProperties = await session.TryGetMediaPropertiesAsync();
                         var timelineProperties = session.GetTimelineProperties();
                         var playbackInfo = session.GetPlaybackInfo();
+                        var playbackInfoStr = $"{mediaProperties.Title}|{mediaProperties.AlbumTitle}|{mediaProperties.AlbumArtist}|{playbackInfo.PlaybackStatus}";
                         string thumbnailBase64 = "";
                         if (mediaProperties.Thumbnail != null)
                         {
-                            thumbnailBase64 = await GetThumbnailBase64(mediaProperties.Thumbnail);
+                            if (!String.Equals(playbackInfoStr, lastPlaybackInfoStr))
+                            {
+                                thumbnailBase64 = await GetThumbnailBase64(mediaProperties.Thumbnail);
+
+                                lastPlaybackInfoStr = playbackInfoStr;
+                                lastThumbNailBase64 = thumbnailBase64;
+                            }
+                            else
+                            {
+                                thumbnailBase64 = lastThumbNailBase64;
+                            }
+                        }
+                        else
+                        {
+                            thumbnailBase64 = "";
                         }
 
-                        var mediaInfo = new
-                        {
-                            AppId = appId,
-                            mediaProperties.Title,
-                            mediaProperties.Artist,
-                            mediaProperties.AlbumTitle,
-                            mediaProperties.AlbumArtist,
-                            mediaProperties.Genres,
-                            mediaProperties.Subtitle,
-                            mediaProperties.TrackNumber,
-                            Duration = timelineProperties.EndTime - timelineProperties.StartTime,
-                            timelineProperties.Position,
-                            playbackInfo.PlaybackStatus,
-                            playbackInfo.PlaybackType,
-                            playbackInfo.IsShuffleActive,
-                            playbackInfo.AutoRepeatMode,
-                            ThumbnailBase64 = thumbnailBase64
-                        };
+                            var mediaInfo = new
+                            {
+                                AppId = appId,
+                                mediaProperties.Title,
+                                mediaProperties.Artist,
+                                mediaProperties.AlbumTitle,
+                                mediaProperties.AlbumArtist,
+                                mediaProperties.Genres,
+                                mediaProperties.Subtitle,
+                                mediaProperties.TrackNumber,
+                                Duration = timelineProperties.EndTime - timelineProperties.StartTime,
+                                timelineProperties.Position,
+                                playbackInfo.PlaybackStatus,
+                                playbackInfo.PlaybackType,
+                                playbackInfo.IsShuffleActive,
+                                playbackInfo.AutoRepeatMode,
+                                ThumbnailBase64 = thumbnailBase64
+                            };
 
                         json = JsonSerializer.Serialize(mediaInfo);
                     }
