@@ -1,4 +1,4 @@
-# NowPlayingMediaServer
+# NowPlayingWidget
 
 Hacked together music widget for Windows. Customizable if you know HTML/CSS/JS.
 
