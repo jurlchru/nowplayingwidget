@@ -11,7 +11,7 @@
       const colorThief = new ColorThief();
       const { animate } = anime;
 
-      const rightGradientSampleWidth = 0.2; // percentage value
+      const rightGradientSampleWidth = 0.1; // percentage value
       const darkFontBrightnessThreshold = 0.55;
       const dominantColorWeightLeft = 0.6;
       const dominantColorWeightRight = 0.8;
@@ -248,13 +248,14 @@
       /**
        * The returned HTMLImageElement is fully loaded.
        * @param {HTMLImageElement} originalImgEl
+       * @param {Number} sampleWidth
        * @returns {Promise<HTMLImageElement | null>}
        */
-      function makeCroppedCopy(originalImgEl) {
+      function makeCroppedCopy(originalImgEl, sampleWidth) {
         return new Promise((resolve, reject) => {
           const width = originalImgEl.naturalWidth;
           const height = originalImgEl.naturalHeight;
-          const cropWidth = Math.floor(width * 0.08);
+          const cropWidth = Math.floor(width * sampleWidth);
 
           const canvas = document.createElement('canvas');
           canvas.width = cropWidth;
