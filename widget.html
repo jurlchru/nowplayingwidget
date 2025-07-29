@@ -188,7 +188,7 @@
         const artistEl = document.querySelector('.artist');
         const coverGradientEl = document.querySelector('.cover-gradient');
 
-        playerEl.style.backgroundImage = `linear-gradient(90deg, ${gradientLeft.hex} 0%, ${gradientRight.hex} 100%)`;
+        playerEl.style.backgroundImage = `linear-gradient(90deg, ${gradientLeft.hex} 0%, ${gradientRight.hex} 90%)`;
         coverGradientEl.style.backgroundImage = `linear-gradient(90deg, ${gradientRight.hex} 0%, ${gradientRight.hex}00 100%)`;
         titleEl.style.color = bodyTextColor;
         albumEl.style.color = bodyTextColor;
@@ -328,7 +328,7 @@
       .player {
         position: relative;
         background-color: #222;
-        background-image: linear-gradient(90deg, rgb(40, 40, 53) 0%, rgb(54, 54, 104) 100%);
+        background-image: linear-gradient(90deg, rgb(40, 40, 53) 0%, rgb(54, 54, 104) 90%);
         background-size: 550px 250px;
         width: 800px;
         height: 250px;
