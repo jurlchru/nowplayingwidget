@@ -11,10 +11,12 @@
       const colorThief = new ColorThief();
       const { animate } = anime;
 
-      const rightGradientSampleWidth = 0.1; // percentage value
+      const rightGradientSampleWidth = 0.08; // percentage value
+      const rightGradientCropFactor = 0.8; // percentage value
       const darkFontBrightnessThreshold = 0.55;
-      const dominantColorWeightLeft = 0.6;
-      const dominantColorWeightRight = 0.8;
+      const dominantColorWeightLeft = 0.8;
+      const dominantColorWeightRight = 0.5;
+      const averageColorDownScaleSize = 32; // dimensions for average color calculation
 
       /** @typedef {object} MediaInfo
        * @property {string} AppId
@@ -150,17 +152,21 @@
         let gradientRight = rgbToColor([54, 54, 104]);
         let bodyTextColor = '#f0f0f0';
 
+        let croppedCopyEl;
+
         try {
-          const croppedCopyEl = await makeCroppedCopy(imgEl, rightGradientSampleWidth);
+          croppedCopyEl = await makeCroppedCopy(
+            imgEl,
+            rightGradientSampleWidth,
+            rightGradientCropFactor
+          );
 
-          const dominantColor = rgbToColor(colorThief.getColor(imgEl, 10));
-          const palette = colorThief.getPalette(imgEl).map((rgb) => rgbToColor(rgb));
-          const transitionColor = rgbToColor(colorThief.getColor(croppedCopyEl));
-
-          croppedCopyEl.remove();
+          const palette = colorThief.getPalette(imgEl);
+          const dominantColor = colorThief.getColor(imgEl, 10);
+          const transitionColor = getAverageColor(croppedCopyEl);
 
           const mostVibrantColor = [dominantColor, ...palette].reduce((prevColor, curColor) => {
-            if (rgbVibrance(curColor.color) > rgbVibrance(prevColor.color)) {
+            if (rgbVibrance(curColor) > rgbVibrance(prevColor)) {
               return curColor;
             }
 
@@ -168,18 +174,26 @@
           }, dominantColor);
 
           gradientLeft = rgbToColor(
-            mixColors(dominantColor.color, mostVibrantColor.color, dominantColorWeightLeft)
+            mixColors(dominantColor, mostVibrantColor, dominantColorWeightLeft)
           );
           gradientRight = rgbToColor(
-            mixColors(gradientLeft.color, transitionColor.color, dominantColorWeightRight)
+            mixColors(dominantColor, transitionColor, dominantColorWeightRight)
           );
-
-          const dominantColorBrightness = rgbBrightness(gradientLeft.color);
-          if (dominantColorBrightness >= darkFontBrightnessThreshold) {
-            bodyTextColor = '#222222';
-          }
         } catch (e) {
           console.error(e);
+
+          try {
+            // attempt to get a single color by downsizing the album to 1 pixel
+            gradientLeft = rgbToColor(getAverageColor(imgEl));
+            gradientRight = gradientLeft;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        const dominantColorBrightness = rgbBrightness(gradientLeft.color);
+        if (dominantColorBrightness >= darkFontBrightnessThreshold) {
+          bodyTextColor = '#222222';
         }
 
         const playerEl = document.querySelector('.player');
@@ -249,29 +263,78 @@
        * The returned HTMLImageElement is fully loaded.
        * @param {HTMLImageElement} originalImgEl
        * @param {Number} sampleWidth
+       * @param {Number} verticalCropFactor
        * @returns {Promise<HTMLImageElement | null>}
        */
-      function makeCroppedCopy(originalImgEl, sampleWidth) {
+      function makeCroppedCopy(originalImgEl, sampleWidth, verticalCropFactor) {
         return new Promise((resolve, reject) => {
           const width = originalImgEl.naturalWidth;
           const height = originalImgEl.naturalHeight;
+
           const cropWidth = Math.floor(width * sampleWidth);
+          const cropHeight = Math.floor(height * verticalCropFactor);
+
+          const verticalOffset = Math.floor((height - cropHeight) / 2);
 
           const canvas = document.createElement('canvas');
           canvas.width = cropWidth;
           canvas.height = height;
 
           const ctx = canvas.getContext('2d');
-          ctx.drawImage(originalImgEl, 0, 0, cropWidth, height, 0, 0, cropWidth, height);
+          ctx.drawImage(
+            originalImgEl,
+            0,
+            verticalOffset,
+            cropWidth,
+            cropHeight,
+            0,
+            0,
+            cropWidth,
+            cropHeight
+          );
 
-          const croppedImgEl = document.createElement('img');
-          croppedImgEl.src = canvas.toDataURL();
+          const croppedImgEl = new Image();
           croppedImgEl.classList.add('hidden');
-          document.body.appendChild(croppedImgEl);
-
           croppedImgEl.addEventListener('load', () => resolve(croppedImgEl));
           croppedImgEl.addEventListener('error', () => reject(null));
+          croppedImgEl.src = canvas.toDataURL();
         });
+      }
+
+      /**
+       * @param {HTMLImageElement} imgEl
+       * @returns {[number, number, number]}
+       * */
+      function getAverageColor(imgEl) {
+        const canvas = document.createElement('canvas');
+        canvas.width = averageColorDownScaleSize;
+        canvas.height = averageColorDownScaleSize;
+
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+
+        ctx.drawImage(imgEl, 0, 0, averageColorDownScaleSize, averageColorDownScaleSize);
+
+        const pixelData = ctx.getImageData(
+          0,
+          0,
+          averageColorDownScaleSize,
+          averageColorDownScaleSize
+        ).data;
+
+        let r = 0,
+          g = 0,
+          b = 0;
+
+        for (let i = 0; i < pixelData.length; i += 4) {
+          r += pixelData[i];
+          g += pixelData[i + 1];
+          b += pixelData[i + 2];
+        }
+
+        const pixelCount = averageColorDownScaleSize * averageColorDownScaleSize;
+
+        return [Math.round(r / pixelCount), Math.round(g / pixelCount), Math.round(b / pixelCount)];
       }
 
       /** @param {string} selector */
