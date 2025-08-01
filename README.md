@@ -10,3 +10,12 @@ Just download the provided ZIP file, unpack anywhere, and run `NowPlaying.exe`. 
 
 - The client widget as of now only handles playback from Spotify and Foobar2000, you can adjust this in `widget.html`.
 - I've designed this with the Noto font in mind. You can download it [here](https://fonts.google.com/noto).
+
+## Examples
+
+Cherry-picked and badly cropped :)
+
+<img width="800" height="250" alt="Example1" src="assets/Example1.png" />
+<img width="800" height="250" alt="Example1" src="assets/Example2.png" />
+<img width="800" height="250" alt="Example1" src="assets/Example3.png" />
+<img width="800" height="250" alt="Example1" src="assets/Example4.png" />
