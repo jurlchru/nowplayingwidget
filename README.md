@@ -15,7 +15,7 @@ Just download the provided ZIP file, unpack anywhere, and run `NowPlaying.exe`. 
 
 Cherry-picked and badly cropped :)
 
-<img width="800" height="250" alt="Example1" src="assets/Example1.png" />
-<img width="800" height="250" alt="Example1" src="assets/Example2.png" />
-<img width="800" height="250" alt="Example1" src="assets/Example3.png" />
-<img width="800" height="250" alt="Example1" src="assets/Example4.png" />
+<img width="400" height="125" alt="Example1" src="assets/Example1.png" />
+<img width="400" height="125" alt="Example2" src="assets/Example2.png" />
+<img width="400" height="125" alt="Example3" src="assets/Example3.png" />
+<img width="400" height="125" alt="Example4" src="assets/Example4.png" />
