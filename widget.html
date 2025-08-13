@@ -202,8 +202,14 @@
         const artistEl = document.querySelector('.artist');
         const coverGradientEl = document.querySelector('.cover-gradient');
 
-        playerEl.style.backgroundImage = `linear-gradient(90deg, ${gradientLeft.hex} 0%, ${gradientRight.hex} 90%)`;
-        coverGradientEl.style.backgroundImage = `linear-gradient(90deg, ${gradientRight.hex} 0%, ${gradientRight.hex}00 100%)`;
+        const lightnessAdjust = rgbBrightness(gradientRight.color) < 0.5 ? 0 : 0.03;
+        const saturationIncreaseLeft = rgbVibrance(gradientLeft.color) < 0.1 ? 0 : 0.03;
+        const saturationIncreaseRight = rgbVibrance(gradientRight.color) < 0.1 ? 0 : 0.03;
+
+        playerEl.style.backgroundImage = `linear-gradient(90deg in oklab,
+                                          oklch(from ${gradientLeft.hex} l calc(c + ${saturationIncreaseLeft}) h) 0%,
+                                          oklch(from ${gradientRight.hex} calc(l + ${lightnessAdjust}) calc(c + ${saturationIncreaseRight}) h) 90%)`;
+        coverGradientEl.style.backgroundImage = `linear-gradient(90deg, oklch(from ${gradientRight.hex} calc(l + ${lightnessAdjust}) calc(c + ${saturationIncreaseRight}) h) 0%, ${gradientRight.hex}00 100%)`;
         titleEl.style.color = bodyTextColor;
         albumEl.style.color = bodyTextColor;
         artistEl.style.color = bodyTextColor;
